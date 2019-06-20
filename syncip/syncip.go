@@ -31,6 +31,11 @@ func (s *SyncIP) SetZone(name string) error {
 		return err
 	}
 
+	if s.zone != nil && s.zone.Name == name {
+		// Name 一致, 直接返回
+		return nil
+	}
+
 	id, err := s.api.ZoneIDByName(name)
 	if err != nil {
 		return err

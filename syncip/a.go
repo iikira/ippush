@@ -13,6 +13,7 @@ func (s *SyncIP) SetARecord(name, value string) error {
 	}
 
 	records, err := s.api.DNSRecords(s.zone.ID, cloudflare.DNSRecord{
+		Type: "A",
 		Name: name + "." + s.zone.Name,
 	})
 	if err != nil {
