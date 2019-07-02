@@ -13,7 +13,7 @@ func main() {
 	}
 
 	r.SetTask(mytask.NewMyRunTask())
-	r.CronRun("0 */1 6-22 * * ?", func(err error) {
+	r.CronRun("0 */1 6-22 * * *", func(err error) {
 		if err != nil {
 			log.Printf("update err: %s\n", err)
 			return
