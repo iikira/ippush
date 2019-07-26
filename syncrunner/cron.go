@@ -2,7 +2,7 @@ package syncrunner
 
 import (
 	"github.com/iikira/BaiduPCS-Go/pcsutil/pcstime"
-	"github.com/robfig/cron"
+	"github.com/robfig/cron/v3"
 )
 
 type (
@@ -10,15 +10,14 @@ type (
 	ErrCallback func(err error)
 )
 
-// CronRun cron 执行
-func (r *Runner) CronRun(spec string, callback ErrCallback) *cron.Cron {
-	c := cron.NewWithLocation(pcstime.CSTLocation) // 东八区
+// PrepareCron 准备 cron 执行
+func (r *Runner) PrepareCron(spec string, callback ErrCallback) *cron.Cron {
+	c := cron.New(cron.WithLocation(pcstime.CSTLocation)) // 东八区
 	c.AddFunc(spec, func() {
 		err := r.Run()
 		if callback != nil {
 			callback(err)
 		}
 	})
-	c.Start()
 	return c
 }
