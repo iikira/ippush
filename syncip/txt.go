@@ -1,34 +1,18 @@
 package syncip
 
 import (
-	// "fmt"
+	"context"
 	"github.com/cloudflare/cloudflare-go"
 )
 
-// CreateTXTRecord 创建TXT记录
-func (s *SyncIP) CreateTXTRecord(fullName, value string) (*cloudflare.DNSRecordResponse, error) {
-	err := s.check()
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.api.CreateDNSRecord(s.zone.ID, cloudflare.DNSRecord{
-		Type:    "TXT",
-		Name:    fullName,
-		Content: value,
-		TTL:     120,
-	})
-	return resp, err
-}
-
 // SetTXTRecord 设置TXT记录
-func (s *SyncIP) SetTXTRecord(fullName, value string) error {
+func (s *SyncIP) SetTXTRecord(ctx context.Context, fullName, value string) error {
 	err := s.check()
 	if err != nil {
 		return err
 	}
 
-	records, err := s.api.DNSRecords(s.zone.ID, cloudflare.DNSRecord{
+	records, err := s.api.DNSRecords(ctx, s.zone.ID, cloudflare.DNSRecord{
 		Type: "TXT",
 		Name: fullName,
 	})
@@ -38,7 +22,13 @@ func (s *SyncIP) SetTXTRecord(fullName, value string) error {
 
 	var r cloudflare.DNSRecord
 	if len(records) == 0 {
-		resp, err := s.CreateTXTRecord(fullName, value)
+		// 创建记录
+		resp, err := s.api.CreateDNSRecord(ctx, s.zone.ID, cloudflare.DNSRecord{
+			Type:    "TXT",
+			Name:    fullName,
+			Content: value,
+			TTL:     120,
+		})
 		if err != nil {
 			return err
 		}
@@ -55,6 +45,6 @@ func (s *SyncIP) SetTXTRecord(fullName, value string) error {
 	r.Content = value
 	r.TTL = 120
 
-	err = s.api.UpdateDNSRecord(s.zone.ID, r.ID, r)
+	err = s.api.UpdateDNSRecord(ctx, s.zone.ID, r.ID, r)
 	return err
 }

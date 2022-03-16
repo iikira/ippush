@@ -1,6 +1,7 @@
 package syncip
 
 import (
+	"context"
 	"github.com/cloudflare/cloudflare-go"
 )
 
@@ -25,7 +26,7 @@ func NewSyncIP(apiKey, apiEmail string) (*SyncIP, error) {
 }
 
 // SetZone 设置zone, 通过域名
-func (s *SyncIP) SetZone(name string) error {
+func (s *SyncIP) SetZone(ctx context.Context, name string) error {
 	err := s.checkAPI()
 	if err != nil {
 		return err
@@ -41,7 +42,7 @@ func (s *SyncIP) SetZone(name string) error {
 		return err
 	}
 
-	zone, err := s.api.ZoneDetails(id)
+	zone, err := s.api.ZoneDetails(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -50,8 +51,8 @@ func (s *SyncIP) SetZone(name string) error {
 	return nil
 }
 
-// IssetZone 是否设置了Zone
-func (s *SyncIP) IssetZone() bool {
+// IsSetZone 是否设置了Zone
+func (s *SyncIP) IsSetZone() bool {
 	return s.zone != nil
 }
 

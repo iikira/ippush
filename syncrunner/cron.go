@@ -1,7 +1,8 @@
 package syncrunner
 
 import (
-	"github.com/iikira/BaiduPCS-Go/pcsutil/pcstime"
+	"context"
+	"github.com/iikira/iikira-go-utils/utils/csttime"
 	"github.com/robfig/cron/v3"
 )
 
@@ -11,10 +12,18 @@ type (
 )
 
 // PrepareCron 准备 cron 执行
-func (r *Runner) PrepareCron(spec string, callback ErrCallback) *cron.Cron {
-	c := cron.New(cron.WithLocation(pcstime.CSTLocation)) // 东八区
+func (r *Runner) PrepareCron(spec string, first bool, callback ErrCallback) *cron.Cron {
+	ctx := context.Background()
+	if first {
+		// 第一次立即执行
+		err := r.Run(ctx)
+		if callback != nil {
+			callback(err)
+		}
+	}
+	c := cron.New(cron.WithLocation(csttime.CSTLocation)) // 东八区
 	c.AddFunc(spec, func() {
-		err := r.Run()
+		err := r.Run(ctx)
 		if callback != nil {
 			callback(err)
 		}

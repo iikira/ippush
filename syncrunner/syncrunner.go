@@ -1,8 +1,10 @@
 package syncrunner
 
 import (
-	"github.com/iikira/BaiduPCS-Go/pcsutil/getip"
+	"context"
+	"github.com/iikira/iikira-go-utils/utils/getip"
 	"github.com/iikira/ippush/syncip"
+	"log"
 	"os"
 )
 
@@ -60,7 +62,7 @@ func (r *Runner) initInfo() (err error) {
 	return nil
 }
 
-func (r *Runner) lazyInit() (err error) {
+func (r *Runner) lazyInit(ctx context.Context) (err error) {
 	err = r.initInfo()
 	if err != nil {
 		return
@@ -78,9 +80,9 @@ func (r *Runner) lazyInit() (err error) {
 
 	}
 
-	if !r.s.IssetZone() {
+	if !r.s.IsSetZone() {
 		// set zone
-		err = r.s.SetZone(r.task.ZoneName())
+		err = r.s.SetZone(ctx, r.task.ZoneName())
 		if err != nil {
 			return
 		}
@@ -95,8 +97,8 @@ func (r *Runner) SetTask(task RunTask) {
 }
 
 // Run 执行一次
-func (r *Runner) Run() error {
-	err := r.lazyInit()
+func (r *Runner) Run(ctx context.Context) error {
+	err := r.lazyInit(ctx)
 	if err != nil {
 		return err
 	}
@@ -105,16 +107,18 @@ func (r *Runner) Run() error {
 	if err != nil {
 		return err
 	}
+	log.Println(ipAddr)
 
 	if ipAddr == r.relateIP {
 		// ip未变化, 跳过更新
 		return nil
 	}
 
-	r.relateIP = ipAddr // set relate ip
-	err = r.s.SetARecord(r.task.AName(), r.relateIP)
+	err = r.s.SetARecord(ctx, r.task.AName(), ipAddr)
 	if err != nil {
 		return err
 	}
+
+	r.relateIP = ipAddr // set relate ip
 	return nil
 }
