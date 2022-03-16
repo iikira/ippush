@@ -14,7 +14,7 @@ func (s *SyncIP) SetTXTRecord(ctx context.Context, fullName, value string) error
 
 	records, err := s.api.DNSRecords(ctx, s.zone.ID, cloudflare.DNSRecord{
 		Type: "TXT",
-		Name: fullName,
+		Name: fullName + "." + s.zone.Name,
 	})
 	if err != nil {
 		return err
